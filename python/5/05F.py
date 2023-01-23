@@ -16,17 +16,16 @@ import re
 
 class Student:
     def __init__(self):
-        self._name = None
+        pass
 
     @property
     def name(self) -> str:
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) ->None:
         if type(value) != str:
             raise ValueError
-        if re.fullmatch(r"^[a-zA-Z]+", value) and isinstance(value, str):
-            self._name = value
-        else:
+        if not re.fullmatch(r"[a-zA-Z ]*", value):
             raise ValueError
+        self._name = value
