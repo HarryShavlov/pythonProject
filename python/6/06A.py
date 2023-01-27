@@ -31,20 +31,30 @@ class stack_chain:
 
 Возвращаемый итератор должен позволять продолжать итерацию после вызова исключения StopIteration, если в stack_chain был добавлен новый Iterable.
 
+from __future__ import annotations
+from collections.abc import Iterable, Iterator
+
 class stack_chain:
+
     def __init__(self, *iterables: Iterable):
-        self.stack = list(reversed(iterables))
+        self.iterables = iterables
+        self.iterators = [iter(it) for it in iterables]
 
     def __iter__(self) -> Iterator:
-        while self.stack:
-            item = self.stack.pop()
-            if isinstance(item, Iterable):
-                yield from item
-            else:
-                yield item
+        return self
+
+    def __next__(self):
+        while self.iterators:
+            try:
+                return next(self.iterators[-1])
+            except StopIteration:
+                self.iterators.pop()
+        raise StopIteration
+
 
     def __iadd__(self, iterable: Iterable) -> stack_chain:
-        self.stack.append(iterable)
+        self.iterables += (iterable,)
+        self.iterators.append(iter(iterable))
         return self
       
  print(*stack_chain(range(3), range(2, -1, -1), (i * i for i in range(3))))
